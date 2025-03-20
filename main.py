@@ -70,6 +70,7 @@ def send_whatsapp_message(phone_number_id, to, text, message_id):
     payload = {
         "messaging_product": "whatsapp",
         "to": to,
+        "type": "text",
         "text": {"body": text},
         "context": {"message_id": message_id},
     }
