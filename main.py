@@ -1,6 +1,6 @@
 import os
 import requests
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Query, Request
 from dotenv import load_dotenv
 
 # Cargar variables de entorno
@@ -35,11 +35,15 @@ async def webhook(req: Request):
     return {"status": "received"}
 
 @app.get("/webhook")
-async def verify_webhook(hub_mode: str, hub_verify_token: str, hub_challenge: int):
+async def verify_webhook(
+    hub_mode: str = Query(None, alias="hub.mode"),
+    hub_verify_token: str = Query(None, alias="hub.verify_token"),
+    hub_challenge: int = Query(None, alias="hub.challenge")
+):
     """Verifica el webhook de WhatsApp."""
     if hub_mode == "subscribe" and hub_verify_token == WEBHOOK_VERIFY_TOKEN:
         print("Webhook verified successfully!")
-        return hub_challenge
+        return int(hub_challenge)  # Aseguramos que se devuelve como número
     return {"error": "Verification failed"}, 403
 
 @app.get("/")
