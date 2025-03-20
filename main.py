@@ -63,7 +63,9 @@ async def home():
 
 def send_whatsapp_message(phone_number_id, to, text, message_id):
     """Envía un mensaje de texto a través de WhatsApp Cloud API."""
-    url = f"https://graph.facebook.com/v22.0/{phone_number_id}/messages"
+    url = f"https://graph.facebook.com/v22.0/639991559190781/messages"
+    print("PRUEBA URL", url)
+    print("PRUEBA TOKEN", GRAPH_API_TOKEN)
     headers = {"Authorization": f"Bearer {GRAPH_API_TOKEN}"}
     payload = {
         "messaging_product": "whatsapp",
@@ -77,7 +79,7 @@ def send_whatsapp_message(phone_number_id, to, text, message_id):
 
 def mark_message_as_read(phone_number_id, message_id):
     """Marca un mensaje como leído."""
-    url = f"https://graph.facebook.com/v22.0/{phone_number_id}/messages"
+    url = f"https://graph.facebook.com/v22.0/639991559190781/messages"
     headers = {"Authorization": f"Bearer {GRAPH_API_TOKEN}"}
     payload = {
         "messaging_product": "whatsapp",
