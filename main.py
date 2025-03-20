@@ -16,7 +16,8 @@ app = FastAPI()
 async def webhook(req: Request):
     """Maneja mensajes entrantes de WhatsApp."""
     data = await req.json()
-    print("Incoming webhook message:", data)
+    print("📩 Incoming POST request to /webhook")
+    print("🔹 Received Data:", data)
 
     message = data.get("entry", [{}])[0].get("changes", [{}])[0].get("value", {}).get("messages", [{}])[0]
 
@@ -26,11 +27,15 @@ async def webhook(req: Request):
         text_body = message["text"]["body"]
         message_id = message["id"]
 
+        print(f"✅ Message received from {sender}: {text_body}")
+
         # Responder con un mensaje de eco
         send_whatsapp_message(phone_number_id, sender, f"Echo: {text_body}", message_id)
 
         # Marcar el mensaje como leído
         mark_message_as_read(phone_number_id, message_id)
+
+        print(f"📤 Sent echo message to {sender}")
 
     return {"status": "received"}
 
@@ -41,13 +46,19 @@ async def verify_webhook(
     hub_challenge: int = Query(None, alias="hub.challenge")
 ):
     """Verifica el webhook de WhatsApp."""
+    print("📩 Incoming GET request to /webhook")
+    print(f"🔹 hub.mode: {hub_mode}, hub.verify_token: {hub_verify_token}, hub.challenge: {hub_challenge}")
+
     if hub_mode == "subscribe" and hub_verify_token == WEBHOOK_VERIFY_TOKEN:
-        print("Webhook verified successfully!")
+        print("✅ Webhook verified successfully!")
         return int(hub_challenge)  # Aseguramos que se devuelve como número
+
+    print("❌ Webhook verification failed")
     return {"error": "Verification failed"}, 403
 
 @app.get("/")
 async def home():
+    print("📩 Incoming GET request to /")
     return {"message": "WeebHook Running"}
 
 def send_whatsapp_message(phone_number_id, to, text, message_id):
@@ -60,7 +71,9 @@ def send_whatsapp_message(phone_number_id, to, text, message_id):
         "text": {"body": text},
         "context": {"message_id": message_id},
     }
-    requests.post(url, headers=headers, json=payload)
+    print(f"📤 Sending message to {to}: {text}")
+    response = requests.post(url, headers=headers, json=payload)
+    print(f"🔹 Response: {response.status_code}, {response.text}")
 
 def mark_message_as_read(phone_number_id, message_id):
     """Marca un mensaje como leído."""
@@ -71,8 +84,11 @@ def mark_message_as_read(phone_number_id, message_id):
         "status": "read",
         "message_id": message_id,
     }
-    requests.post(url, headers=headers, json=payload)
+    print(f"📌 Marking message {message_id} as read")
+    response = requests.post(url, headers=headers, json=payload)
+    print(f"🔹 Response: {response.status_code}, {response.text}")
 
 if __name__ == "__main__":
     import uvicorn
+    print(f"🚀 Starting server on port {PORT}")
     uvicorn.run(app, host="0.0.0.0", port=PORT)
