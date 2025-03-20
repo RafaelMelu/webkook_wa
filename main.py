@@ -71,8 +71,7 @@ def send_whatsapp_message(phone_number_id, to, text, message_id):
         "messaging_product": "whatsapp",
         "to": to,
         "type": "text",
-        "text": {"body": text},
-        "context": {"message_id": message_id},
+        "text": {"body": text}
     }
     print(f"📤 Sending message to {to}: {text}")
     response = requests.post(url, headers=headers, json=payload)
